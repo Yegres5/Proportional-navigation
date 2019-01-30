@@ -29,120 +29,105 @@ Rocket::Rocket(double x, double y, double z, double V, double n_xv,
 void Rocket::update(double dt)
 {
 //Gravity compensation
-    vector<double> grav = {0,1,0};
-    grav = toTrajectoryCoordinateSystem(grav);
+//    vector<double> grav = {0,1,0};
+//    grav = toTrajectoryCoordinateSystem(grav);
 
-    gamma += isDoubleEqualToZero(grav[2]) ? 0 : atan(grav[2]/
-                                            sqrt(pow(grav[0],2)+pow(grav[1],2)));
-
-
-
-    grav = {0,1,0};
-    grav = toTrajectoryCoordinateSystem(grav);
-    n_yv = grav[1];
-    n_xv = grav[0];
+//    gamma += isDoubleEqualToZero(grav[2]) ? 0 : atan(grav[2]/
+//                                            sqrt(pow(grav[0],2)+pow(grav[1],2)));
+    gamma = 0;
+//    grav = {0,1,0};
+//    grav = toTrajectoryCoordinateSystem(grav);
+//    n_yv = grav[1];
+//    n_xv = grav[0];
 
 //Calculation target position, vector of target speed, vector of self speed
-
-    TargetCoor = toSpeedCoordinateSystem(vector<double> ({{target->getX()-x,
-                                                           target->getY()-y,
-                                                           target->getZ()-z}}));
+//TargetCoor speed coordinate system, TargetSpeed, SelfSpeed
+    TargetCoor = {target->getX()-x,
+                  target->getY()-y,
+                  target->getZ()-z};
 
     vector<double> TargetSpeed = {target->GetV()*qCos(target->getTeta().getValue())*qCos(target->getPsi().getValue()),
                                   target->GetV()*qSin(target->getTeta().getValue()),
                                   -target->GetV()*qCos(target->getTeta().getValue())*qSin(target->getPsi().getValue())};
 
-    TargetSpeed = toSpeedCoordinateSystem(TargetSpeed);
-
-    vector<double>* toSpherical = new vector<double>{sqrt(pow(TargetSpeed[0],2)+
-                                                          pow(TargetSpeed[1],2)+
-                                                          pow(TargetSpeed[2],2)),
-                                                     qAcos(sqrt(pow(TargetSpeed[0],2)+
-                                                                pow(TargetSpeed[2],2))/
-                                                           sqrt(pow(TargetSpeed[0],2)+
-                                                                pow(TargetSpeed[1],2)+
-                                                                pow(TargetSpeed[2],2)))*(TargetSpeed[1] < 0 ? -1 : 1),
-                                                     CalcAngle(TargetSpeed[0],-TargetSpeed[2])};
-    std::copy(toSpherical->begin(),toSpherical->end(),TargetSpeed.begin());
-    delete toSpherical;
-
     vector<double> SelfSpeed = {V*qCos(teta.getValue())*qCos(psi.getValue()),
                                 V*qSin(teta.getValue()),
                                 -V*qCos(teta.getValue())*qSin(psi.getValue())};
-    SelfSpeed = toSpeedCoordinateSystem(SelfSpeed);
 
-    toSpherical = new vector<double>{sqrt(pow(SelfSpeed[0],2)+
-                                          pow(SelfSpeed[1],2)+
-                                          pow(SelfSpeed[2],2)),
-                                     qAcos(sqrt(pow(SelfSpeed[0],2)+
-                                                pow(SelfSpeed[2],2))/
-                                           sqrt(pow(SelfSpeed[0],2)+
-                                           pow(SelfSpeed[1],2)+
-                                           pow(SelfSpeed[2],2))),
-                                     CalcAngle(SelfSpeed[0],-SelfSpeed[2])};
+//Proportional navigation
 
-    std::copy(toSpherical->begin(),toSpherical->end(),SelfSpeed.begin());
-    delete toSpherical;
+    double Ptmx = TargetCoor[0];
+    double Ptmy = TargetCoor[1];
+    double Ptmz = TargetCoor[2];
 
-//FOR XY (pitch)
-    vector<double> SelfSpeedXY = {SelfSpeed[0], 0};
+    double distance_to_target = sqrt(pow(Ptmx,2)+pow(Ptmy,2)+pow(Ptmz,2));
 
-    vector<double> TargetSpeedXY = {TargetSpeed[0]*cos(TargetSpeed[1])*cos(TargetSpeed[2]),
-                                    TargetSpeed[0]*sin(TargetSpeed[1])};
+    double lambda_xy = CalcAngle(Ptmx,Ptmy);
+    double lambda_xz = CalcAngle(Ptmx,Ptmz);
+    double lambda_yz = CalcAngle(Ptmz,Ptmy);
 
-    TargetSpeedXY = {sqrt(pow(TargetSpeedXY[0],2) + pow(TargetSpeedXY[1],2)),
-                     CalcAngle(TargetSpeedXY[0],TargetSpeedXY[1])};
+    double beta_xy = CalcAngle(TargetSpeed[0], TargetSpeed[1]);
+    double beta_xz = CalcAngle(TargetSpeed[0], TargetSpeed[2]);
+    double beta_yz = CalcAngle(TargetSpeed[2], TargetSpeed[1]);
 
-//    qDebug("abs = %5.f\n"
-//           "angle = %5.f",TargetSpeedXY[0],
-//                        TargetSpeedXY[1]);
+    double Vtxy = sqrt(pow(TargetSpeed[0],2) + pow(TargetSpeed[1],2));
+    double Vtxz = sqrt(pow(TargetSpeed[0],2) + pow(TargetSpeed[2],2));
+    double Vtyz = sqrt(pow(TargetSpeed[1],2) + pow(TargetSpeed[2],2));
 
-//    if (TargetSpeedXY[0] < 0){
-//        TargetSpeedXY[0] *= -1;
-//        TargetSpeedXY[1] += M_PI;
-//    }
+    double Lxy = asin((Vtxy*sin(beta_xy + lambda_xy))/V);
+    double Lxz = asin((Vtxz*sin(beta_xz + lambda_xz))/V);
+    double Lyz = asin((Vtyz*sin(beta_yz + lambda_yz))/V);
 
-    double sigma_R_XY = SelfSpeedXY[1] - CalcLambdaYX();
-    double sigma_T_XY = TargetSpeedXY[1] - CalcLambdaYX();
+    double Vtmx = TargetSpeed[0] - SelfSpeed[0];
+    double Vtmy = TargetSpeed[1] - SelfSpeed[1];
+    double Vtmz = TargetSpeed[2] - SelfSpeed[2];
 
-    r_XY = sqrt(pow(TargetCoor[0],2) + pow(TargetCoor[1],2));
+    //increment lambda
+    double lambda_xy_ = ( !isDoubleEqualToZero(pow(Ptmx,2) + pow(Ptmy,2)) )
+            ? (Ptmx*Vtmy - Ptmy*Vtmx)/(pow(Ptmx,2) + pow(Ptmy,2))
+            : 0;
+    double lambda_xz_ = ( !isDoubleEqualToZero((pow(Ptmx,2) + pow(Ptmz,2))) )
+            ? (Ptmx*Vtmz - Ptmz*Vtmx)/(pow(Ptmx,2) + pow(Ptmz,2))
+            : 0;
+    double lambda_yz_ = ( !isDoubleEqualToZero(pow(Ptmy,2) + pow(Ptmz,2)) )
+            ? (Ptmy*Vtmz - Ptmz*Vtmy)/(pow(Ptmy,2) + pow(Ptmz,2))
+            : 0;
 
-    double d_lambda_XY = (TargetSpeedXY[0]*sin(sigma_T_XY) - SelfSpeedXY[0]*sin(sigma_R_XY))/r_XY;
-    //qDebug("---dLambda = %5.f", d_lambda_XY);
-    double W_XY = K*V*d_lambda_XY;
-    double n_pitch = W_XY/_g;
+    lambda_xy_ = (lambda_xy_ > M_PI) ? lambda_xy_ - 2*M_PI : lambda_xy_;
+    lambda_xz_ = (lambda_xz_ > M_PI) ? lambda_xz_ - 2*M_PI : lambda_xz_;
+    lambda_yz_ = (lambda_yz_ > M_PI) ? lambda_yz_ - 2*M_PI : lambda_yz_;
 
-// FOR XZ (roll)
-    vector<double> SelfSpeedXZ = {SelfSpeed[0]*cos(SelfSpeed[1]),
-                                  SelfSpeed[2]};
-    vector<double> TargetSpeedXZ = {TargetSpeed[0]*cos(TargetSpeed[1]),
-                                    TargetSpeed[2]};
+    double Vcxy = ( sqrt(pow(Ptmx,2) + pow(Ptmy,2)) != 0 )
+            ? -(Ptmx*Vtmx + Ptmy*Vtmy)/sqrt(pow(Ptmx,2) + pow(Ptmy,2))
+            : 0;
+    double Vcxz = ( sqrt(pow(Ptmx,2) + pow(Ptmz,2)) != 0 )
+            ? -(Ptmx*Vtmx + Ptmz*Vtmz)/sqrt(pow(Ptmx,2) + pow(Ptmz,2))
+            : 0;
+    double Vcyz = ( sqrt(pow(Ptmy,2) + pow(Ptmz,2)) != 0 )
+            ? -(Ptmy*Vtmy + Ptmz*Vtmz)/sqrt(pow(Ptmy,2) + pow(Ptmz,2))
+            : 0;
 
-    double sigma_R = SelfSpeedXZ[1] - CalcLambdaXZ();
-    double sigma_T = TargetSpeedXZ[1] - CalcLambdaXZ();
-    r = sqrt(pow(TargetCoor[0],2) + pow(TargetCoor[2],2));
-    double d_lambda = (TargetSpeedXZ[0]*sin(sigma_T) - SelfSpeedXZ[0]*sin(sigma_R))/r;
-    double W = -K*V*d_lambda;
-    double n_roll = W/_g;
+    double nc_xy = K*Vcxy*lambda_xy_;   // pitch
+    double nc_xz = K*Vcxz*lambda_xz_;   // roll
+    double nc_yz = K*Vcyz*lambda_yz_;   // yaw
 
-// Target get reached by rocket
+    double amx = - nc_xy*sin(lambda_xy) - nc_xz*sin(lambda_xz);
+    double amy =   nc_xy*cos(lambda_xy) - nc_yz*sin(lambda_yz);
+    double amz =   nc_xz*cos(lambda_xz) + nc_yz*cos(lambda_yz);
 
-
-    if (r <= 800 && r_XY <= 800){
-        emit targetGetReached();
-    }
+    double a_pitch = amy*cos(teta.getValue());
+    double a_roll = - amx*sin(psi.getValue()) + amz*cos(psi.getValue());
 
 //Summ of gravity, roll and pitch
+    vector<double> grav = {0,1,0};
+    grav = toTrajectoryCoordinateSystem(grav);
 
-    n_yv += n_pitch;
-
+    n_xv = grav[0];
+    n_yv = a_pitch + grav[1];
+    double n_roll = a_roll + grav[2];
     gamma += isDoubleEqualToZero(n_roll) ? 0 : atan(n_roll/n_yv);
     n_yv = sqrt(pow(n_yv,2) + pow(n_roll,2))*(n_yv > 0 ? 1 : -1);
     n_roll = 0;
-//    qDebug("%5.f",n_yv);
-//qDebug("\nn_pitch = %5.f"
-//       "\nY grav  = %5.f"
-//       "\nn_y     = %5.f", n_pitch, grav[1], n_yv);
 
 //Equations of motion
     V += (n_xv - sin(teta.getValue()))*_g*dt;
@@ -151,6 +136,14 @@ void Rocket::update(double dt)
     x += V*cos(teta.getValue())*cos(psi.getValue())*dt;
     y += V*sin(teta.getValue())*dt;
     z += -V*cos(teta.getValue())*sin(psi.getValue())*dt;
+
+qDebug() << "Distance to target is = " << sqrt(pow(Vtmx,2)+pow(Vtmy,2) + pow(Vtmz,2));
+
+// Target get reached by rocket
+    if (distance_to_target - sqrt(pow(Vtmx,2)+pow(Vtmy,2) + pow(Vtmz,2))
+            <= 0 || distance_to_target <= r_explode){
+        emit targetGetReached();
+    }
 }
 
 double Rocket::GetSigmaT()
@@ -171,7 +164,6 @@ double Rocket::GetSigmaT()
             return 0;
         }
     }
-
     return atan(dy/dx);
 }
 
@@ -304,10 +296,14 @@ vector<double> Rocket::toTrajectoryCoordinateSystem(vector<double> vec)
 
 double CalcAngle(double dx, double dy){
     if (isDoubleEqualToZero(dx)){
-        if (dy>0){
-            return M_PI_2;
+        if (isDoubleEqualToZero(dy)){
+            return 0;
         }else{
-            return M_PI+M_PI_2;
+            if (dy>0){
+                return M_PI_2;
+            }else{
+                return M_PI+M_PI_2;
+            }
         }
     }
 

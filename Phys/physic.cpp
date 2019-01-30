@@ -69,7 +69,7 @@ void Physic::StartToFly()
 {
   if (updateFlag){
       currentTime += dt;
-      qDebug("%.2f",currentTime);
+      qDebug("Current time is = %.2f",currentTime);
       UpdatePhys(dt);
 
       emit UpdateGraph(&LAObjects);

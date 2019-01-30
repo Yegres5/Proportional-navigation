@@ -21,8 +21,6 @@ void drawingObject::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 {
     painter->setBrush(color);
     painter->drawEllipse(-r/2,-r/2,r,r);
-
-
 }
 
 const QBrush drawingObject::getColor() const
