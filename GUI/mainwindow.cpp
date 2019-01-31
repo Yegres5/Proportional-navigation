@@ -111,7 +111,7 @@ void MainWindow::createHash(LA* flyObject)
 
     Obj_XY->setPos((flyObject->getX()+dX)/Zoom_X,(-flyObject->getY()-dY)/Zoom_Y);
     Obj_XZ->setPos((flyObject->getX()+dX)/Zoom_X,(flyObject->getZ()+dZ)/Zoom_Z);
-    Obj_ZY->setPos((-flyObject->getZ()-dZ)/Zoom_Z,(-flyObject->getY()-dY)/Zoom_Y);
+    Obj_ZY->setPos((flyObject->getZ()+dZ)/Zoom_Z,(-flyObject->getY()-dY)/Zoom_Y);
 
     Obj_XY->scene()->setSceneRect(Obj_XY->scene()->itemsBoundingRect());
     Obj_XZ->scene()->setSceneRect(Obj_XZ->scene()->itemsBoundingRect());
@@ -171,7 +171,7 @@ void MainWindow::reDraw(const QVector<LA *> *objects)
     l = fabs(z - l);
 
     ui->graphicsView_XY->scene()->setSceneRect(x,-y,w,h);
-    ui->graphicsView_ZY->scene()->setSceneRect(-z,-y,l,h);
+    ui->graphicsView_ZY->scene()->setSceneRect(z,-y,l,h);
     ui->graphicsView_XZ->scene()->setSceneRect(x,z,w,l);
 
     if(flag)
@@ -226,11 +226,11 @@ void MainWindow::drawObjectOnWindow(LA *flyObject)
 
     ui->graphicsView_ZY->scene()->addLine(obj_ZY->x(),
                                           obj_ZY->y(),
-                                          (-(flyObject)->getZ()-dZ)/Zoom_Z,
+                                          ((flyObject)->getZ()+dZ)/Zoom_Z,
                                           (-(flyObject)->getY()-dY)/Zoom_Y,
                                           *pen);
 
-    obj_ZY->setPos((-(flyObject)->getZ()-dZ)/Zoom_Z,(-(flyObject)->getY()-dY)/Zoom_Y);
+    obj_ZY->setPos(((flyObject)->getZ()+dZ)/Zoom_Z,(-(flyObject)->getY()-dY)/Zoom_Y);
 }
 
 void MainWindow::setTableData(LA *flyObject)
