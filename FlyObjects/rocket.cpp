@@ -50,6 +50,8 @@ void Rocket::update(double dt)
                                   target->GetV()*qSin(target->getTeta().getValue()),
                                   -target->GetV()*qCos(target->getTeta().getValue())*qSin(target->getPsi().getValue())};
 
+    TargetSpeed = toSpeedCoordinateSystem(TargetSpeed);
+
     vector<double> SelfSpeed = {V*qCos(teta.getValue())*qCos(psi.getValue()),
                                 V*qSin(teta.getValue()),
                                 -V*qCos(teta.getValue())*qSin(psi.getValue())};
@@ -63,11 +65,11 @@ void Rocket::update(double dt)
     double distance_to_target = sqrt(pow(Ptmx,2)+pow(Ptmy,2)+pow(Ptmz,2));
 
     double lambda_xy = CalcAngle(Ptmx,Ptmy);
-    double lambda_xz = CalcAngle(Ptmx,Ptmz);
+    double lambda_xz = CalcAngle(Ptmx,-Ptmz);
     double lambda_yz = CalcAngle(Ptmz,Ptmy);
 
     double beta_xy = CalcAngle(TargetSpeed[0], TargetSpeed[1]);
-    double beta_xz = CalcAngle(TargetSpeed[0], TargetSpeed[2]);
+    double beta_xz = CalcAngle(TargetSpeed[0], -TargetSpeed[2]);
     double beta_yz = CalcAngle(TargetSpeed[2], TargetSpeed[1]);
 
     double Vtxy = sqrt(pow(TargetSpeed[0],2) + pow(TargetSpeed[1],2));
@@ -93,10 +95,6 @@ void Rocket::update(double dt)
             ? (Ptmy*Vtmz - Ptmz*Vtmy)/(pow(Ptmy,2) + pow(Ptmz,2))
             : 0;
 
-    lambda_xy_ = (lambda_xy_ > M_PI) ? lambda_xy_ - 2*M_PI : lambda_xy_;
-    lambda_xz_ = (lambda_xz_ > M_PI) ? lambda_xz_ - 2*M_PI : lambda_xz_;
-    lambda_yz_ = (lambda_yz_ > M_PI) ? lambda_yz_ - 2*M_PI : lambda_yz_;
-
     double Vcxy = ( sqrt(pow(Ptmx,2) + pow(Ptmy,2)) != 0 )
             ? -(Ptmx*Vtmx + Ptmy*Vtmy)/sqrt(pow(Ptmx,2) + pow(Ptmy,2))
             : 0;
@@ -116,7 +114,8 @@ void Rocket::update(double dt)
     double amz =   nc_xz*cos(lambda_xz) + nc_yz*cos(lambda_yz);
 
     double a_pitch = amy*cos(teta.getValue());
-    double a_roll = - amx*sin(psi.getValue()) + amz*cos(psi.getValue());
+    double a_roll = - amx*sin(psi.getValue()) + amz*cos(psi.getValue());// a_roll = amz
+    qDebug() << "Roll acceleration is = " << a_roll;
 
 //Summ of gravity, roll and pitch
     vector<double> grav = {0,1,0};
@@ -137,13 +136,14 @@ void Rocket::update(double dt)
     y += V*sin(teta.getValue())*dt;
     z += -V*cos(teta.getValue())*sin(psi.getValue())*dt;
 
-qDebug() << "Distance to target is = " << sqrt(pow(Vtmx,2)+pow(Vtmy,2) + pow(Vtmz,2));
+qDebug() << "Distance to target is = " << distance_to_target;
 
 // Target get reached by rocket
     if (distance_to_target - sqrt(pow(Vtmx,2)+pow(Vtmy,2) + pow(Vtmz,2))
             <= 0 || distance_to_target <= r_explode){
         emit targetGetReached();
     }
+    qDebug() << "";
 }
 
 double Rocket::GetSigmaT()
