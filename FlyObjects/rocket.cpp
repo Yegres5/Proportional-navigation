@@ -28,6 +28,10 @@ Rocket::Rocket(double x, double y, double z, double V, double n_xv,
 
 void Rocket::update(double dt)
 {
+
+    TargetCoordinatesInSpeed = toSpeedCoordinateSystem(vector<double> ({{target->getX()-x,
+                                                           target->getY()-y,
+                                                           target->getZ()-z}}));
 //Gravity compensation
     vector<double> grav = {0,1,0};
     grav = toTrajectoryCoordinateSystem(grav);
@@ -39,14 +43,15 @@ void Rocket::update(double dt)
 
     grav = {0,1,0};
     grav = toTrajectoryCoordinateSystem(grav);
-    n_yv = grav[1];
     n_xv = grav[0];
+    n_yv = grav[1];
 
 //Calculation target position, vector of target speed, vector of self speed
 
     TargetCoor = toSpeedCoordinateSystem(vector<double> ({{target->getX()-x,
                                                            target->getY()-y,
                                                            target->getZ()-z}}));
+
 
     vector<double> TargetSpeed = {target->GetV()*qCos(target->getTeta().getValue())*qCos(target->getPsi().getValue()),
                                   target->GetV()*qSin(target->getTeta().getValue()),

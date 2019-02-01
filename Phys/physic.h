@@ -14,7 +14,7 @@ class Physic : public QObject
     Q_OBJECT
 
 public:
-    explicit Physic(double dt, QObject *parent = 0);
+    explicit Physic(double dt, QObject *parent = nullptr);
     void pushBackLA(LA *object);
     QThread* connect_with_graph(MainWindow *wnd);
 
@@ -28,6 +28,7 @@ private:
 
 signals:
     void UpdateGraph(const QVector<LA*>* objects);
+    void UpdateSpeedGraph(const QVector<double>* object);
 
 public slots:
     void StartToFly();

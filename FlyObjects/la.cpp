@@ -57,11 +57,10 @@ void LA::update(double dt)
             }
         }
     }
-    n_yv += 0;
-    double n_roll = -2;
+    n_yv += 2;
+    double n_roll = 0;
     gamma += isDoubleEqualToZero(n_roll) ? 0 : atan(n_roll/n_yv);
     n_yv = sqrt(pow(n_yv,2)+pow(n_roll,2));
-
 
     V += (n_xv - sin(teta.getValue()))*_g*dt;
     teta += (n_yv*cos(gamma.getValue())-cos(teta.getValue()))*_g/V*dt;

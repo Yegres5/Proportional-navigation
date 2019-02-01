@@ -21,11 +21,11 @@ int main(int argc, char *argv[])
 
     srand(99);
 
-    Physic objects(1,nullptr);
+    Physic objects(0.1,nullptr);
 
-    LA* la = new LA(18000,-5000,0,320*1,0,1,   //25000,-7000,7000
+    LA* la = new LA(18000,7000,4000,320*1,0,1,   //25000,-7000,7000
                     M_PI/180*(0),  //Teta
-                    M_PI/180*(180),  //Psi
+                    M_PI/180*(0),  //Psi
                     M_PI/180*(0),  //Gamma
                     LA_Target);
 
@@ -34,11 +34,11 @@ int main(int argc, char *argv[])
     w.createHash(la);
 
     for(int i(0);i<1;i++){
-        LA* roc = new Rocket(0,0,0,320*1.5,0,1,
-                             M_PI/180*(-15),  //Teta
+        LA* roc = new Rocket(0,0,0,320*1.03,0,1,
+                             M_PI/180*(0),  //Teta
                              M_PI/180*(0),  //Psi
                              M_PI/180*(0),  //Gamma
-                             la,1,LA_Rocket);
+                             la,3,LA_Rocket);
         roc->setObjectName("Rocket");
 
         objects.pushBackLA(roc);

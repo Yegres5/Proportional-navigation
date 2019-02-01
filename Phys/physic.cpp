@@ -36,6 +36,9 @@ QThread *Physic::connect_with_graph(MainWindow* wnd)
     connect(this,SIGNAL(UpdateGraph(const QVector<LA*>*)),
             wnd,SLOT(reDraw(const QVector<LA*>*)));
 
+    connect(this,SIGNAL(UpdateSpeedGraph(const QVector<double>*)),
+            wnd,SLOT(reDrawForSpeedWindow(const QVector<double>*)));
+
     connect(wnd,SIGNAL(DrawEnd()),
             this,SLOT(StartToFly()));
 
@@ -71,6 +74,15 @@ void Physic::StartToFly()
       currentTime += dt;
       qDebug("%.2f",currentTime);
       UpdatePhys(dt);
+
+      for(QVector<LA*>::Iterator iter = LAObjects.begin();iter != LAObjects.end();iter++){
+          LA* aaa = *iter;
+          if (aaa->objectName() == "Rocket"){
+              Rocket* roc = dynamic_cast<Rocket*>(aaa);
+              QVector<double>* vec = new QVector<double>(QVector<double>::fromStdVector(roc->TargetCoordinatesInSpeed));
+              emit UpdateSpeedGraph(vec);
+          }
+      }
 
       emit UpdateGraph(&LAObjects);
     }

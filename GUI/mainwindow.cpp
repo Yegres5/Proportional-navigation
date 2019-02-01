@@ -45,20 +45,28 @@ MainWindow::MainWindow(QWidget *parent) :
     z = new Graphics_view_zoom(ui->graphicsView_ZY);
     z->set_modifiers(Qt::NoModifier);
 
+    scene = new QGraphicsScene(ui->graphicsView_Speed);
+    scene->setSceneRect(ui->graphicsView_Speed->geometry());
+    scene->setBackgroundBrush(Qt::white);
+    ui->graphicsView_Speed->setScene(scene);
+    ui->graphicsView_Speed->scale(0.01, 0.01);
+    z = new Graphics_view_zoom(ui->graphicsView_Speed);
+    z->set_modifiers(Qt::NoModifier);
+
 //Editing dataTable
-    ui->dataTable->setRowCount(9);
-    ui->dataTable->setColumnCount(2);
-    ui->dataTable->setFixedSize(ui->dataTable->horizontalHeader()->length()+ui->dataTable->verticalHeader()->width(),
-                       ui->dataTable->verticalHeader()->length()+ui->dataTable->horizontalHeader()->height());
-    ui->dataTable->setItem(0, 0, new QTableWidgetItem("X"));
-    ui->dataTable->setItem(1, 0, new QTableWidgetItem("Y"));
-    ui->dataTable->setItem(2, 0, new QTableWidgetItem("Z"));
-    ui->dataTable->setItem(3, 0, new QTableWidgetItem("V"));
-    ui->dataTable->setItem(4, 0, new QTableWidgetItem("teta"));
-    ui->dataTable->setItem(5, 0, new QTableWidgetItem("psi"));
-    ui->dataTable->setItem(6, 0, new QTableWidgetItem("gamma"));
-    ui->dataTable->setItem(7, 0, new QTableWidgetItem("n_y"));
-    ui->dataTable->setItem(8, 0, new QTableWidgetItem("n_x"));
+//    ui->dataTable->setRowCount(9);
+//    ui->dataTable->setColumnCount(2);
+//    ui->dataTable->setFixedSize(ui->dataTable->horizontalHeader()->length()+ui->dataTable->verticalHeader()->width(),
+//                       ui->dataTable->verticalHeader()->length()+ui->dataTable->horizontalHeader()->height());
+//    ui->dataTable->setItem(0, 0, new QTableWidgetItem("X"));
+//    ui->dataTable->setItem(1, 0, new QTableWidgetItem("Y"));
+//    ui->dataTable->setItem(2, 0, new QTableWidgetItem("Z"));
+//    ui->dataTable->setItem(3, 0, new QTableWidgetItem("V"));
+//    ui->dataTable->setItem(4, 0, new QTableWidgetItem("teta"));
+//    ui->dataTable->setItem(5, 0, new QTableWidgetItem("psi"));
+//    ui->dataTable->setItem(6, 0, new QTableWidgetItem("gamma"));
+//    ui->dataTable->setItem(7, 0, new QTableWidgetItem("n_y"));
+//    ui->dataTable->setItem(8, 0, new QTableWidgetItem("n_x"));
 
 //Editing scroll items
     dX = 0;
@@ -98,6 +106,7 @@ void MainWindow::createHash(LA* flyObject)
     drawingObject* Obj_XY = new drawingObject(pen->brush(), "XY");
     drawingObject* Obj_XZ = new drawingObject(pen->brush(), "XZ");
     drawingObject* Obj_ZY = new drawingObject(pen->brush(), "ZY");
+    drawingObject* Obj = new drawingObject(pen->brush(), "XY");
 
     drawingObjects_XY.insert(flyObject,Obj_XY);
     drawingObjects_XZ.insert(flyObject,Obj_XZ);
@@ -108,6 +117,7 @@ void MainWindow::createHash(LA* flyObject)
     ui->graphicsView_XY->scene()->addItem(Obj_XY);
     ui->graphicsView_XZ->scene()->addItem(Obj_XZ);
     ui->graphicsView_ZY->scene()->addItem(Obj_ZY);
+    ui->graphicsView_Speed->scene()->addItem(Obj);
 
     Obj_XY->setPos((flyObject->getX()+dX)/Zoom_X,(-flyObject->getY()-dY)/Zoom_Y);
     Obj_XZ->setPos((flyObject->getX()+dX)/Zoom_X,(flyObject->getZ()+dZ)/Zoom_Z);
@@ -117,11 +127,19 @@ void MainWindow::createHash(LA* flyObject)
     Obj_XZ->scene()->setSceneRect(Obj_XZ->scene()->itemsBoundingRect());
     Obj_ZY->scene()->setSceneRect(Obj_ZY->scene()->itemsBoundingRect());
 
+
     Obj_XY->show();
     Obj_XZ->show();
     Obj_ZY->show();
+    Obj->show();
 
     setTableData(flyObject);
+}
+
+void MainWindow::reDrawForSpeedWindow(const QVector<double> *object)
+{
+    QList<QGraphicsItem*> items = ui->graphicsView_Speed->items();
+    items.at(1)->setPos(object->at(2),-object->at(1));
 }
 
 //TODO: Thread pool for graphic in MainWindow::redraw.
@@ -174,8 +192,7 @@ void MainWindow::reDraw(const QVector<LA *> *objects)
     ui->graphicsView_ZY->scene()->setSceneRect(z,-y,l,h);
     ui->graphicsView_XZ->scene()->setSceneRect(x,z,w,l);
 
-    if(flag)
-        emit DrawEnd();
+    if(flag) emit DrawEnd();
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -236,15 +253,15 @@ void MainWindow::drawObjectOnWindow(LA *flyObject)
 void MainWindow::setTableData(LA *flyObject)
 {
     //double temp = ui->dataTable->column();
-    ui->dataTable->setItem(0,1,new QTableWidgetItem(QString("%1").arg(flyObject->getX())));
-    ui->dataTable->setItem(1,1,new QTableWidgetItem(QString("%1").arg(flyObject->getY())));
-    ui->dataTable->setItem(2,1,new QTableWidgetItem(QString("%1").arg(flyObject->getZ())));
-    ui->dataTable->setItem(3,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetV())));
-    ui->dataTable->setItem(4,1,new QTableWidgetItem(QString("%1").arg(flyObject->getTeta().getValue())));
-    ui->dataTable->setItem(5,1,new QTableWidgetItem(QString("%1").arg(flyObject->getPsi().getValue())));
-    ui->dataTable->setItem(6,1,new QTableWidgetItem(QString("%1").arg(flyObject->getGamma().getValue())));
-    ui->dataTable->setItem(7,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetNy())));
-    ui->dataTable->setItem(8,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetNx())));
+//    ui->dataTable->setItem(0,1,new QTableWidgetItem(QString("%1").arg(flyObject->getX())));
+//    ui->dataTable->setItem(1,1,new QTableWidgetItem(QString("%1").arg(flyObject->getY())));
+//    ui->dataTable->setItem(2,1,new QTableWidgetItem(QString("%1").arg(flyObject->getZ())));
+//    ui->dataTable->setItem(3,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetV())));
+//    ui->dataTable->setItem(4,1,new QTableWidgetItem(QString("%1").arg(flyObject->getTeta().getValue())));
+//    ui->dataTable->setItem(5,1,new QTableWidgetItem(QString("%1").arg(flyObject->getPsi().getValue())));
+//    ui->dataTable->setItem(6,1,new QTableWidgetItem(QString("%1").arg(flyObject->getGamma().getValue())));
+//    ui->dataTable->setItem(7,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetNy())));
+//    ui->dataTable->setItem(8,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetNx())));
 }
 
 void MainWindow::reDrawAllViews()

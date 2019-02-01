@@ -28,18 +28,18 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void createHash(LA *flyObject);
 signals:
     void DrawEnd();
 public slots:
+    void reDrawForSpeedWindow(const QVector<double> *object);
     void reDraw(const QVector<LA *> *objects);
 private slots:
     void on_pushButton_clicked();
     void on_ScaleButton_clicked();
 private:
-
     Ui::MainWindow *ui;
     QHash<LA*,drawingObject*> drawingObjects_XY;
 //    QHash<drawingObject*, tracer*> tracer_XY;

@@ -14,6 +14,9 @@ public:
     Rocket(double x, double y, double z, double V, double n_xv,
            double n_yv, double teta, double psi, double gamma, LA* target, double K,
            const char* name = "Rocket");
+
+    vector<double> TargetCoordinatesInSpeed;
+
 private:
     //Get values from target.
     double GetSigmaT();
