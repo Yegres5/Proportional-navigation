@@ -54,19 +54,18 @@ MainWindow::MainWindow(QWidget *parent) :
     z->set_modifiers(Qt::NoModifier);
 
 //Editing dataTable
-//    ui->dataTable->setRowCount(9);
-//    ui->dataTable->setColumnCount(2);
-//    ui->dataTable->setFixedSize(ui->dataTable->horizontalHeader()->length()+ui->dataTable->verticalHeader()->width(),
-//                       ui->dataTable->verticalHeader()->length()+ui->dataTable->horizontalHeader()->height());
-//    ui->dataTable->setItem(0, 0, new QTableWidgetItem("X"));
-//    ui->dataTable->setItem(1, 0, new QTableWidgetItem("Y"));
-//    ui->dataTable->setItem(2, 0, new QTableWidgetItem("Z"));
-//    ui->dataTable->setItem(3, 0, new QTableWidgetItem("V"));
-//    ui->dataTable->setItem(4, 0, new QTableWidgetItem("teta"));
-//    ui->dataTable->setItem(5, 0, new QTableWidgetItem("psi"));
-//    ui->dataTable->setItem(6, 0, new QTableWidgetItem("gamma"));
-//    ui->dataTable->setItem(7, 0, new QTableWidgetItem("n_y"));
-//    ui->dataTable->setItem(8, 0, new QTableWidgetItem("n_x"));
+
+    ui->dataTable->setRowCount(9);
+    ui->dataTable->setColumnCount(2);
+    ui->dataTable->setItem(0, 0, new QTableWidgetItem("X"));
+    ui->dataTable->setItem(1, 0, new QTableWidgetItem("Y"));
+    ui->dataTable->setItem(2, 0, new QTableWidgetItem("Z"));
+    ui->dataTable->setItem(3, 0, new QTableWidgetItem("V"));
+    ui->dataTable->setItem(4, 0, new QTableWidgetItem("teta"));
+    ui->dataTable->setItem(5, 0, new QTableWidgetItem("psi"));
+    ui->dataTable->setItem(6, 0, new QTableWidgetItem("gamma"));
+    ui->dataTable->setItem(7, 0, new QTableWidgetItem("n_y"));
+    ui->dataTable->setItem(8, 0, new QTableWidgetItem("n_x"));
 
 //Editing scroll items
     dX = 0;
@@ -252,16 +251,15 @@ void MainWindow::drawObjectOnWindow(LA *flyObject)
 
 void MainWindow::setTableData(LA *flyObject)
 {
-    //double temp = ui->dataTable->column();
-//    ui->dataTable->setItem(0,1,new QTableWidgetItem(QString("%1").arg(flyObject->getX())));
-//    ui->dataTable->setItem(1,1,new QTableWidgetItem(QString("%1").arg(flyObject->getY())));
-//    ui->dataTable->setItem(2,1,new QTableWidgetItem(QString("%1").arg(flyObject->getZ())));
-//    ui->dataTable->setItem(3,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetV())));
-//    ui->dataTable->setItem(4,1,new QTableWidgetItem(QString("%1").arg(flyObject->getTeta().getValue())));
-//    ui->dataTable->setItem(5,1,new QTableWidgetItem(QString("%1").arg(flyObject->getPsi().getValue())));
-//    ui->dataTable->setItem(6,1,new QTableWidgetItem(QString("%1").arg(flyObject->getGamma().getValue())));
-//    ui->dataTable->setItem(7,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetNy())));
-//    ui->dataTable->setItem(8,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetNx())));
+    ui->dataTable->setItem(0,1,new QTableWidgetItem(QString("%1").arg(flyObject->getX())));
+    ui->dataTable->setItem(1,1,new QTableWidgetItem(QString("%1").arg(flyObject->getY())));
+    ui->dataTable->setItem(2,1,new QTableWidgetItem(QString("%1").arg(flyObject->getZ())));
+    ui->dataTable->setItem(3,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetV())));
+    ui->dataTable->setItem(4,1,new QTableWidgetItem(QString("%1").arg(flyObject->getTeta().getValue())));
+    ui->dataTable->setItem(5,1,new QTableWidgetItem(QString("%1").arg(flyObject->getPsi().getValue())));
+    ui->dataTable->setItem(6,1,new QTableWidgetItem(QString("%1").arg(flyObject->getGamma().getValue())));
+    ui->dataTable->setItem(7,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetNy())));
+    ui->dataTable->setItem(8,1,new QTableWidgetItem(QString("%1").arg(flyObject->GetNx())));
 }
 
 void MainWindow::reDrawAllViews()

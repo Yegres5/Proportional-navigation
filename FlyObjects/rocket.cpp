@@ -1,6 +1,7 @@
 #include "rocket.h"
 #include <QDebug>
 #include <QtMath>
+#include <QFile>
 
 #define isDoubleEqualToZero(x) ( fabs(x) < 0.1e-5)
 
@@ -28,6 +29,15 @@ Rocket::Rocket(double x, double y, double z, double V, double n_xv,
 
 void Rocket::update(double dt)
 {
+    qDebug("%.3f,%.3f,%.3f",x,y,z);
+
+    QString filename = "C:/Users/Kokao/PycharmProjects/untitled/rocket.csv";
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        QTextStream stream(&file);
+        stream << x << "," << y << "," << z << endl;
+    }
+    file.close();
 
     TargetCoordinatesInSpeed = toSpeedCoordinateSystem(vector<double> ({{target->getX()-x,
                                                            target->getY()-y,
@@ -47,7 +57,6 @@ void Rocket::update(double dt)
     n_yv = grav[1];
 
 //Calculation target position, vector of target speed, vector of self speed
-
     TargetCoor = toSpeedCoordinateSystem(vector<double> ({{target->getX()-x,
                                                            target->getY()-y,
                                                            target->getZ()-z}}));
@@ -98,15 +107,6 @@ void Rocket::update(double dt)
     TargetSpeedXY = {sqrt(pow(TargetSpeedXY[0],2) + pow(TargetSpeedXY[1],2)),
                      CalcAngle(TargetSpeedXY[0],TargetSpeedXY[1])};
 
-//    qDebug("abs = %5.f\n"
-//           "angle = %5.f",TargetSpeedXY[0],
-//                        TargetSpeedXY[1]);
-
-//    if (TargetSpeedXY[0] < 0){
-//        TargetSpeedXY[0] *= -1;
-//        TargetSpeedXY[1] += M_PI;
-//    }
-
     double sigma_R_XY = SelfSpeedXY[1] - CalcLambdaYX();
     double sigma_T_XY = TargetSpeedXY[1] - CalcLambdaYX();
 
@@ -131,23 +131,16 @@ void Rocket::update(double dt)
     double n_roll = W/_g;
 
 // Target get reached by rocket
-
-
     if (r <= 800 && r_XY <= 800){
         emit targetGetReached();
     }
 
 //Summ of gravity, roll and pitch
-
     n_yv += n_pitch;
 
     gamma += isDoubleEqualToZero(n_roll) ? 0 : atan(n_roll/n_yv);
     n_yv = sqrt(pow(n_yv,2) + pow(n_roll,2))*(n_yv > 0 ? 1 : -1);
     n_roll = 0;
-//    qDebug("%5.f",n_yv);
-//qDebug("\nn_pitch = %5.f"
-//       "\nY grav  = %5.f"
-//       "\nn_y     = %5.f", n_pitch, grav[1], n_yv);
 
 //Equations of motion
     V += (n_xv - sin(teta.getValue()))*_g*dt;

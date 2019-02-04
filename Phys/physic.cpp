@@ -72,7 +72,6 @@ void Physic::StartToFly()
 {
   if (updateFlag){
       currentTime += dt;
-      qDebug("%.2f",currentTime);
       UpdatePhys(dt);
 
       for(QVector<LA*>::Iterator iter = LAObjects.begin();iter != LAObjects.end();iter++){

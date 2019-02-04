@@ -1,5 +1,7 @@
 #include "la.h"
 #include <QtMath>
+#include <QFile>
+#include <QTextStream>
 
 #define isDoubleEqualToZero(x) ( fabs(x) < 0.1e-5)
 
@@ -15,6 +17,16 @@ LA::LA(double x, double y, double z, double V, double n_xv,
 
 void LA::update(double dt)
 {
+    //qDebug("%.3f,%.3f,%.3f",x,y,z);
+
+    QString filename = "C:/Users/Kokao/PycharmProjects/untitled/target.csv";
+    QFile file(filename);
+    if (file.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        QTextStream stream(&file);
+        stream << x << "," << y << "," << z << endl;
+    }
+    file.close();
+
     std::vector<double> grav = {0,1,0};
     {
     double psi = 0;
@@ -57,7 +69,7 @@ void LA::update(double dt)
             }
         }
     }
-    n_yv += 2;
+    n_yv += 0;
     double n_roll = 0;
     gamma += isDoubleEqualToZero(n_roll) ? 0 : atan(n_roll/n_yv);
     n_yv = sqrt(pow(n_yv,2)+pow(n_roll,2));
